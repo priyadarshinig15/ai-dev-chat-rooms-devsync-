@@ -23,17 +23,29 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    console.log('[v0] Starting login for:', email)
 
-    if (error) {
-      setError(error.message)
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      console.log('[v0] Login response:', { data, error })
+
+      if (error) {
+        console.error('[v0] Login error:', error)
+        setError(error.message)
+        setLoading(false)
+      } else {
+        console.log('[v0] Login successful, redirecting to /chat')
+        router.push('/chat')
+        router.refresh()
+      }
+    } catch (err) {
+      console.error('[v0] Login exception:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setLoading(false)
-    } else {
-      router.push('/chat')
-      router.refresh()
     }
   }
 

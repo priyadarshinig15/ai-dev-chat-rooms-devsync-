@@ -25,6 +25,8 @@ export default function SignUpPage() {
     setLoading(true)
     setError(null)
 
+    console.log('[v0] Starting signup for:', email, username)
+
     if (username.length < 3) {
       setError('Username must be at least 3 characters')
       setLoading(false)
@@ -37,7 +39,9 @@ export default function SignUpPage() {
       return
     }
 
-    const { error } = await supabase.auth.signUp({
+    try {
+      console.log('[v0] Calling supabase.auth.signUp')
+      const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -50,11 +54,20 @@ export default function SignUpPage() {
       },
     })
 
-    if (error) {
-      setError(error.message)
+      console.log('[v0] SignUp response:', { data, error })
+      
+      if (error) {
+        console.error('[v0] SignUp error:', error)
+        setError(error.message)
+        setLoading(false)
+      } else {
+        console.log('[v0] SignUp successful, user:', data?.user?.id)
+        setSuccess(true)
+      }
+    } catch (err) {
+      console.error('[v0] SignUp exception:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setLoading(false)
-    } else {
-      setSuccess(true)
     }
   }
 
